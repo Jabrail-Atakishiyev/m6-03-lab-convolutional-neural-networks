@@ -16,7 +16,6 @@ By the end of this lab you should be able to:
 - Reason about feature-map shapes through a CNN and verify them programmatically.
 - Train a CNN on CIFAR-10 and reach reasonable accuracy in under 20 epochs on a laptop.
 - Apply standard data augmentation transforms and quantify their impact.
-- Compare a CNN to an MLP on the same image classification task.
 
 ## Setup and Context
 
@@ -58,21 +57,23 @@ torch.manual_seed(42)
 
 ## Tasks
 
-### Task 1 — Inspect Convolutions Manually
+### Task 1 — Convolution Mechanics: Filters and Shapes
 
-Before training anything, build intuition for what a convolution actually does.
+Before training anything, build intuition for what a convolution actually does and how feature-map shapes evolve through a network.
+
+**Part A — Handcrafted filters.**
 
 1. Load a single CIFAR-10 image and convert it to a `torch.Tensor` of shape `(1, 3, 32, 32)`.
-2. Create three handcrafted 3×3 filters by setting `nn.Conv2d(3, 1, kernel_size=3, padding=1)` weights manually:
-   - **Vertical edge detector**: `[[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]` (applied to grayscale conversion)
+2. Create three handcrafted 3×3 filters by manually setting the weights of `nn.Conv2d(3, 1, kernel_size=3, padding=1)`:
+   - **Vertical edge detector**: `[[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]`
    - **Horizontal edge detector**: transpose of the above
    - **Blur**: `(1/9) * np.ones((3, 3))`
 3. Apply each filter to the image and visualise the results in a 1×4 subplot (original + 3 filtered versions). Use `imshow(..., cmap="gray")` for the filtered outputs.
 4. In a markdown cell, briefly describe what each filter highlights.
 
-### Task 2 — Verify Output Shapes
+**Part B — Shape tracking.**
 
-You should be able to predict the shape of every intermediate tensor. Build the following CNN block-by-block and verify shapes:
+Build the following CNN block and verify shapes:
 
 ```python
 class TinyCNN(nn.Module):
@@ -86,7 +87,7 @@ class TinyCNN(nn.Module):
 
 1. Create a dummy input `x = torch.randn(8, 3, 32, 32)`.
 2. Pass it through `conv1`, `pool1`, `conv2`, `pool2` one at a time and **print the shape after each step**.
-3. In a markdown cell, fill in this table for the input → output of each layer:
+3. Fill in this table:
 
 | Layer | Input shape | Output shape |
 |---|---|---|
@@ -95,7 +96,7 @@ class TinyCNN(nn.Module):
 | conv2 | … | … |
 | pool2 | … | … |
 
-### Task 3 — Train a Small CNN on CIFAR-10
+### Task 2 — Train a Small CNN on CIFAR-10
 
 Build a complete CNN classifier and train it.
 
@@ -109,7 +110,7 @@ Build a complete CNN classifier and train it.
 
 **Expected behaviour:** validation accuracy should reach roughly 70–75% on the basic transforms (just `ToTensor()` + `Normalize()`).
 
-### Task 4 — Data Augmentation
+### Task 3 — Data Augmentation
 
 Now show that augmentation matters.
 
@@ -126,29 +127,15 @@ train_tf = transforms.Compose([
 ```
 
 2. Keep the **validation** transform plain (`ToTensor()` + `Normalize()`).
-3. Re-train the same CNN from Task 3 with the augmented training data for 15 epochs.
-4. Compare against the Task 3 baseline:
+3. Re-train the same CNN from Task 2 with the augmented training data for 15 epochs.
+4. Compare against the Task 2 baseline:
 
 | Run | Best val accuracy | Train/val gap |
 |---|---|---|
-| Task 3 (no augmentation) | … | … |
-| Task 4 (with augmentation) | … | … |
+| Task 2 (no augmentation) | … | … |
+| Task 3 (with augmentation) | … | … |
 
 5. In a markdown cell, comment on what changed.
-
-### Task 5 — CNN vs MLP
-
-Demonstrate why CNNs are the right tool by comparing against an MLP baseline.
-
-1. Build an MLP that takes flattened CIFAR-10 images (3072 inputs) → 512 → 256 → 10. Use ReLU and dropout 0.3.
-2. Train it with the same optimiser and number of epochs as Task 3.
-3. Report parameter count and best validation accuracy. Compare to the CNN.
-
-In a markdown cell, answer:
-
-- How many parameters does each model have? Which is larger?
-- Which performs better on validation?
-- What does this tell you about inductive biases for image data?
 
 ## Submission
 
@@ -162,7 +149,6 @@ In a markdown cell, answer:
 - [ ] Shape-tracking table for the TinyCNN block.
 - [ ] Working CNN trained on CIFAR-10 with train/val curves plotted.
 - [ ] Augmentation experiment with results table and interpretation.
-- [ ] CNN-vs-MLP comparison with parameter counts and accuracies.
 - [ ] `Kernel → Restart & Run All` produces no errors.
 
 ### How to submit (Git workflow)
@@ -173,4 +159,4 @@ git commit -m "lab: complete cnn fundamentals"
 git push origin main
 ```
 
-Then open a **Pull Request** on the original repository describing your CNN, what augmentation did, and the CNN vs MLP comparison.
+Then open a **Pull Request** on the original repository describing your CNN and what data augmentation changed.
